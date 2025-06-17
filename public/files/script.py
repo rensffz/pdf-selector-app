@@ -3,11 +3,15 @@ import json
 
 def scan_pdf_files(directory):
     pdf_files = []
-    for root, _, files in os.walk(directory):
-        for file in files:
+    target_subdir = "public/files"
+    full_path = os.path.join(directory, target_subdir)
+
+    if os.path.isdir(full_path):
+        for file in os.listdir(full_path):
             if file.lower().endswith(".pdf"):
-                pdf_files.append(file)  # Только имя, без пути
-    return list(set(pdf_files))  # Убираем дубликаты, если они есть
+                pdf_files.append(file)
+
+    return pdf_files
 
 if __name__ == "__main__":
     target_directory = "."  # текущая директория

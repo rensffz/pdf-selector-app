@@ -1,12 +1,21 @@
-# React + Vite
+# Описание
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Приложение для обработки PDF-файлов и выделения областей для дальнейшего преобразования их в изображения. 
+Предоставляет возможность выбора файла из списка и постраничный доступ к нему. 
+В целях оптимизации рендеринга PDF-файлов использован ResizeObserver.
 
-Currently, two official plugins are available:
+## Как использовать
+1. Скачать архив на компьютер
+2. Установить Node.js
+3. Установить зависимости: ```npm install```
+4. Запустить проект
+    1. Задать права доступа файлу run.sh:
+    ```zsh
+    chmod u+x run.sh
+    ```
+    2. Запустить файл
+    ```zsh
+    ./run.sh
+    ```
+5. Открыть в браузере указанный адрес \(Обычно http://localhost:5173/\)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

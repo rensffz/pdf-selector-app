@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const FileSelector = () => {
@@ -6,6 +6,7 @@ const FileSelector = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Загружаем данные из локального файла files.json
     fetch("/files.json")
       .then((res) => res.json())
       .then((data) => setFiles(data))
@@ -15,6 +16,7 @@ const FileSelector = () => {
       });
   }, []);
 
+  // Функция обработки выбора файла
   const handleSelect = (fileName) => {
     navigate(`/select?fileName=${encodeURIComponent(fileName)}`);
   };

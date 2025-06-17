@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addSelection } from '../store/pdfSlice';
+import { useEffect, useRef, useState } from 'react';
 
 const PDFPage = ({ pdf, pageNumber, onRectChange, containerWidth }) => {
   const canvasRef = useRef();
   const [isSelecting, setIsSelecting] = useState(false);
-  const [localRect, setLocalRect] = useState(null);
+  const [localRect, setLocalRect] = useState(null); // Координаты текущей области
   const startPoint = useRef(null);
 
   useEffect(() => {
@@ -15,9 +13,9 @@ const PDFPage = ({ pdf, pageNumber, onRectChange, containerWidth }) => {
 
     const renderPage = async () => {
       const page = await pdf.getPage(pageNumber);
-      const unscaledViewport = page.getViewport({ scale: 1 });
-      const scale = containerWidth / unscaledViewport.width;
-      const viewport = page.getViewport({ scale });
+      const unscaledViewport = page.getViewport({ scale: 1 }); // Получаем размеры без масштаба
+      const scale = containerWidth / unscaledViewport.width; // Вычисляем масштаб под ширину
+      const viewport = page.getViewport({ scale }); // Получаем отмасштабированный viewport
 
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
@@ -42,70 +40,55 @@ const PDFPage = ({ pdf, pageNumber, onRectChange, containerWidth }) => {
     };
   }, [pdf, pageNumber, containerWidth]);
 
-  const getMousePos = (e) => {
+  const onMouseDown = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
-    return {
+    startPoint.current = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     };
+    setIsSelecting(true);
+    setLocalRect(null);
   };
 
-  const handleMouseDown = (e) => {
-    const { x, y } = getMousePos(e);
-    setSelection({ x, y, width: 0, height: 0 });
+  const onMouseMove = (e) => {
+    if (!isSelecting) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const curr = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+    const x = Math.min(startPoint.current.x, curr.x);
+    const y = Math.min(startPoint.current.y, curr.y);
+    const width = Math.abs(startPoint.current.x - curr.x);
+    const height = Math.abs(startPoint.current.y - curr.y);
+    const newRect = { x, y, width, height, pageNumber };
+    setLocalRect(newRect);
+    onRectChange(newRect, canvasRef.current);
   };
 
-  const handleMouseMove = (e) => {
-    if (!selection) return;
-    const { x, y } = getMousePos(e);
-    setSelection((prev) => ({
-      ...prev,
-      width: x - prev.x,
-      height: y - prev.y,
-    }));
-  };
-
-  const handleMouseUp = () => {
-    if (!selection || selection.width === 0 || selection.height === 0) return;
-
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    const { x, y, width, height } = selection;
-    const cropX = Math.min(x, x + width);
-    const cropY = Math.min(y, y + height);
-    const cropWidth = Math.abs(width);
-    const cropHeight = Math.abs(height);
-
-    const imageData = context.getImageData(cropX, cropY, cropWidth, cropHeight);
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = cropWidth;
-    tempCanvas.height = cropHeight;
-    tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
-
-    const base64 = tempCanvas.toDataURL();
-    dispatch(addSelection(base64));
-    console.log('Добавлено выделение:', base64);
-    setSelection(null);
+  const onMouseUp = () => {
+    setIsSelecting(false);
   };
 
   return (
-    <div className="mb-6 relative" ref={containerRef}>
+    <div style={{ position: "relative", marginBottom: 20 }}>
       <canvas
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        className="border shadow"
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        style={{ border: "0.5px solid rgb(209, 213, 221)", cursor: "crosshair", width: "100%", height: "auto" }}
       />
-      {selection && (
+      {localRect && (
         <div
-          className="absolute border-2 border-blue-600 bg-blue-200/30 pointer-events-none"
           style={{
-            left: `${Math.min(selection.x, selection.x + selection.width)}px`,
-            top: `${Math.min(selection.y, selection.y + selection.height)}px`,
-            width: `${Math.abs(selection.width)}px`,
-            height: `${Math.abs(selection.height)}px`,
+            position: "absolute",
+            left: localRect.x,
+            top: localRect.y,
+            width: localRect.width,
+            height: localRect.height,
+            border: "2px dashed red",
+            pointerEvents: "none",
           }}
         />
       )}

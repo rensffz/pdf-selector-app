@@ -23,7 +23,7 @@ const Selector = () => {
   useEffect(() => {
     if (!fileName) return;
     const loadPDF = async () => {
-      const loadingTask = pdfjsLib.getDocument(`/files/${fileName}`);
+      const loadingTask = pdfjsLib.getDocument(`/pdf-selector-app/files/${fileName}`);
       const loadedPdf = await loadingTask.promise;
       setPdf(loadedPdf);
     };

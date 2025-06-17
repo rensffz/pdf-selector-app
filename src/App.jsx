@@ -5,7 +5,7 @@ import Selector from "./components/PDFSelector";
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/pdf-selector-app">
       <Routes>
         <Route path="/" element={<FileSelector />} />
         <Route path="/select" element={<Selector />} />

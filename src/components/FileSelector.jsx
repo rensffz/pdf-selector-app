@@ -7,7 +7,7 @@ const FileSelector = () => {
 
   useEffect(() => {
     // Загружаем данные из локального файла files.json
-    fetch("/files.json")
+    fetch("/pdf-selector-app/files.json")
       .then((res) => res.json())
       .then((data) => setFiles(data))
       .catch((err) => {
